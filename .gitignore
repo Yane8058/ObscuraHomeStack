@@ -1,14 +1,14 @@
-# ======= Secrets ======= #
+# ============== #
 .env
 *.key
 *.crt
 *.pem
 
-# ======= Config con dati sensibili ======= #
+# ============== #
 containers/alertmanager.yml
 py_scripts/*.py
 
-# ======= Dati container (non versionare) ======= #
+# ============== #
 containers/nextcloud/db/
 containers/nextcloud/data/
 containers/nextcloud/config/
@@ -24,12 +24,12 @@ containers/kavita/config/
 containers/minecraft-bedrock/
 containers/actual-budget/
 
-# ======= Volumi Docker Named ======= #
+# ============== #
 containers/prometheus_data/
 containers/grafana_data/
 containers/alertmanager_data/
 
-# ======= OS & Editor ======= #
+# ============== #
 .DS_Store
 Thumbs.db
 *.swp
