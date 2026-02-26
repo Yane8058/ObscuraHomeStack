@@ -1,0 +1,5 @@
+# system update every Saturday at 5:00
+0 5 * * 0 bash /home/$USER/ObscuraHomeStack/update_system.sh >> /home/$USER/ObscuraHomeStack/logs/system/update.log 2>&1
+
+# Network Controller
+0 * * * * bash /home/$USER/ObscuraHomeStack/network_scanner.sh >> /home/$USER/ObscuraHomeStack/logs/crontab_logs.log 2>&1

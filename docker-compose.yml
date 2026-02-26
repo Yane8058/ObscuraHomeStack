@@ -1,0 +1,314 @@
+version: "3.8"
+services:
+
+# ======= Database for Nextcloud -- Maria DB ======= #
+  db:
+    image: docker.io/mariadb:10.6
+    container_name: mariadb
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/nextcloud/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    networks:
+      - homelab-net
+    healthcheck: 
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      timeout: 20s
+      retries: 10
+
+# ======= Nextcloud ====== #
+  nextcloud:       
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/nextcloud/config:/config
+      - ${BASE_PATH}/nextcloud/data:/data
+    ports:
+      - "${PORT_NEXTCLOUD_HTTPS}:443"
+      - "${PORT_NEXTCLOUD_HTTP}:80"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - homelab-net
+
+# ======= Minecraft Bedrock -- Xbox Compatible ====== #
+  minecraft:
+    image: itzg/minecraft-bedrock-server:latest
+    container_name: minecraft
+    restart: unless-stopped
+    ports:
+      - "${PORT_MINECRAFT}:19132/udp"
+    volumes:
+      - ${BASE_PATH}/minecraft-bedrock:/data
+    environment:
+      - EULA=TRUE
+      - GAMEMODE=survival
+      - SERVER_NAME=BrothersSurvival
+      - DIFFICULTY=easy
+      - MAX_PLAYERS=5
+      - ALLOW_CHEATS=true
+      - ONLINE_MODE=true
+      - DEFAULT_PLAYER_PERMISSION_LEVEL=operator
+      - PLAYER_IDLE_TIMEOUT=20
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    networks:
+      - homelab-net
+
+# ======= qBittorrent ====== #
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    ports:
+      - "${PORT_QBITTORRENT}:8080"
+      - "${PORT_QBITTORRENT_TORRENT}:6881"
+      - "${PORT_QBITTORRENT_TORRENT}:6881/udp"
+    volumes:
+      - ${BASE_PATH}/qbittorrent/config:/config
+      - ${BASE_PATH}/qbittorrent/downloads:/downloads
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK_SET=022
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    networks:
+      - homelab-net
+
+# ======= AdGuard Home (blocco pubblicità + DNS) ====== #
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: adguardhome
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/adguardhome/conf:/opt/adguardhome/conf
+      - ${BASE_PATH}/adguardhome/work:/opt/adguardhome/work
+    ports:
+      - "${PORT_ADGUARD_DNS}:53/tcp"
+      - "${PORT_ADGUARD_DNS}:53/udp"
+      - "${PORT_ADGUARD_UI}:80"
+      - "${PORT_ADGUARD_SETUP}:3000"
+      - "${PORT_ADGUARD_DOT}:853"
+    environment:
+      - TZ=${TZ}
+    networks:
+      - homelab-net
+
+# ======= Node Exporter (System Metrics) ====== #
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    ports:
+      - "${PORT_NODE_EXPORTER}:9100"
+    command:
+      - '--path.rootfs=/host'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - homelab-net
+
+# ======= cAdvisor (Docker Metrics Exporter) ====== #
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "${PORT_CADVISOR}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /sys:/sys:ro
+      - /dev/disk/:/dev/disk:ro
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - homelab-net
+
+# ======= Prometheus (Monitoring) ====== #
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${PORT_PROMETHEUS}:9090"
+    volumes:
+      - ${BASE_PATH}/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${BASE_PATH}/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - node_exporter
+      - cadvisor
+    networks:
+      - homelab-net
+
+# ======= Alertmanager (Telegram Notifications) ====== #
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "0.0.0.0:${PORT_ALERTMANAGER}:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - homelab-net
+
+# ======= Grafana (Metrics Dashboard) ====== #
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:${PORT_GRAFANA}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - homelab-net
+
+# ======= Mosquitto for Home Assistant ======= #
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "${PORT_MOSQUITTO}:1883"
+    volumes:
+      - ${BASE_PATH}/mosquitto/config:/mosquitto/config
+      - ${BASE_PATH}/mosquitto/data:/mosquitto/data
+      - ${BASE_PATH}/mosquitto/log:/mosquitto/log
+    networks:
+      - homelab-net
+
+# ======= Zigbee2MQTT ======= #
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    ports:
+      - "${PORT_ZIGBEE2MQTT}:8080"
+    volumes:
+      - ${BASE_PATH}/zigbee2mqtt:/app/data
+    environment:
+      - TZ=${TZ}
+    #devices:
+    #  - /dev/ttyUSB0:/dev/ttyUSB0
+    depends_on:
+      - mosquitto
+    networks:
+      - homelab-net
+
+# ======= Home Assistant ======= #
+  homeassistant:
+    image: lscr.io/linuxserver/homeassistant:latest
+    container_name: homeassistant
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/homeassistant:/config
+    restart: unless-stopped
+
+# ======= Kavita -- Ebook & Manga Reader ======= #
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    container_name: kavita
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/kavita/config:/config
+      - ${BASE_PATH}/kavita/books:/books
+    ports:
+      - "${PORT_KAVITA}:5000"
+    restart: unless-stopped
+    networks:
+      - homelab-net
+
+# ======= Navidrome -- Music Player ======= #
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: "${USER_ID}"
+    ports:
+      - "${PORT_NAVIDROME}:4533"
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/navidrome/data:/data           # Navidrome Data
+      - /mnt/music:/music:ro                        # Music Library
+    environment:
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info
+    networks:
+      - homelab-net
+
+# ======= Actual Budget -- Family Expense Tracker ======= #
+  actual_server:
+    image: docker.io/actualbudget/actual-server:latest
+    container_name: actual_budget
+    restart: unless-stopped
+    ports:
+      - "${PORT_ACTUAL_BUDGET}:5006"
+    volumes:
+      - ${BASE_PATH}/actual-budget:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'node src/scripts/health-check.js']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - homelab-net
+
+volumes:
+  prometheus_data:
+  alertmanager_data:
+  grafana_data:
+
+networks:
+  homelab-net:
+    driver: bridge
