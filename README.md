@@ -1,5 +1,5 @@
 # 🧰 ObscuraHomeStack Setup
-<img width="400" height="250" alt="ObscuraHomeStack_Logo" src="https://github.com/user-attachments/assets/fa80b8d9-b370-4150-a73a-d0369bce4cf9" />
+<img width="250" height="350" alt="ObscuraHomeStack_Logo" src="https://github.com/user-attachments/assets/fa80b8d9-b370-4150-a73a-d0369bce4cf9" />
 
 Welcome to my personal repository for setting up and managing a **Linux-based HomeServer**.
 
