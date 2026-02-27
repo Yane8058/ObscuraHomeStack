@@ -252,6 +252,13 @@ See `cronjobs_template.txt` for example scheduling. Key jobs:
 
 ---
 
+## 🚀 Future Implementation
+
+- Proxy manager e SSL Certification with Caddy
+- Jellyfin software media system self-hosted
+
+---
+
 ## 📄 License
 
 This project is open source and available under the MIT License.
@@ -262,4 +269,4 @@ This project is open source and available under the MIT License.
 
 For suggestions, improvements, or issues, feel free to open an issue or submit a pull request!
 
-Happy homelabing! 🚀
+Happy homelabing! 💻
