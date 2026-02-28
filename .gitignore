@@ -22,7 +22,9 @@ containers/mosquitto/log/
 containers/navidrome/data/
 containers/kavita/config/
 containers/minecraft-bedrock/
-containers/actual-budget/
+containers/fireflyiii/db/
+containers/fireflyiii/data/
+containers/fireflyiii/config/
 
 # ============== #
 containers/prometheus_data/
