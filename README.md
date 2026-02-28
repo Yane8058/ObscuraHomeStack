@@ -20,7 +20,7 @@ This project provides everything needed to build a fully automated, secure, and 
 * 🧲 Torrent client with **qBittorrent**
 * 📚 eBook reader with **Kavita**
 * 🎵 Self-hosted music streaming with **Navidrome**
-* 💰 Family expense tracker with **Actual Budget**
+* 💰 Personal expense tracker with **Firefly III**
 * 🌐 **Tailscale VPN** for secure remote access and Mesh networking
 
 ---
@@ -60,25 +60,25 @@ ObscuraHomeStack/
 
 ## 🧩 Included Services
 
-| Service | Description | Port(s) | Status |
-| --- | --- | --- | --- |
-| **Tailscale** | Mesh VPN | N/A | ✅ Active |
-| **MariaDB** | Database for Nextcloud | 3306 | ✅ Active |
-| **Nextcloud** | Self-hosted cloud and file sharing | 80, 8443 | ✅ Active |
-| **Minecraft Bedrock** | Minecraft server (Xbox compatible) | 19132/udp | ✅ Active |
-| **qBittorrent** | Torrent client with Web UI | 8080 | ✅ Active |
-| **AdGuard Home** | DNS and ad blocking | 5353, 3000, 8081, 853 | ✅ Active |
-| **Node Exporter** | System metrics exporter | 9100 | ✅ Active |
-| **cAdvisor** | Docker container metrics | 8082 | ✅ Active |
-| **Prometheus** | Time-series metrics database | 9090 | ✅ Active |
-| **Alertmanager** | Telegram alert notifications | 9093 | ✅ Active |
-| **Grafana** | Metrics visualization dashboard | 3001 | ✅ Active |
-| **Mosquitto** | MQTT broker for Home Assistant | 1883 | ✅ Active |
-| **Zigbee2MQTT** | Zigbee device bridge | 8083 | ✅ Active |
-| **Home Assistant** | Smart home automation | 8123 | ✅ Active |
-| **Kavita** | eBook and manga reader | 5000 | ✅ Active |
-| **Navidrome** | Self-hosted music streaming | 4533 | ✅ Active |
-| **Actual Budget** | Family expense tracker | 5006 | ✅ Active |
+| Service | Description | Status |
+| --- | --- | --- |
+| **Tailscale** | Mesh VPN | ✅ Active |
+| **MariaDB** | Shared database for all services that require one | ✅ Active |
+| **Nextcloud** | Self-hosted cloud and file sharing | ✅ Active |
+| **Minecraft Bedrock** | Minecraft server (Xbox compatible) | ✅ Active |
+| **qBittorrent** | Torrent client with Web UI | ✅ Active |
+| **AdGuard Home** | DNS and ad blocking | ✅ Active |
+| **Node Exporter** | System metrics exporter | ✅ Active |
+| **cAdvisor** | Docker container metrics | ✅ Active |
+| **Prometheus** | Time-series metrics database | ✅ Active |
+| **Alertmanager** | Telegram alert notifications | ✅ Active |
+| **Grafana** | Metrics visualization dashboard | ✅ Active |
+| **Mosquitto** | MQTT broker for Home Assistant | ✅ Active |
+| **Zigbee2MQTT** | Zigbee device bridge | ✅ Active |
+| **Home Assistant** | Smart home automation | ✅ Active |
+| **Kavita** | eBook and manga reader | ✅ Active |
+| **Navidrome** | Self-hosted music streaming | ✅ Active |
+| **Firefly III** | Personal expense tracker | ✅ Active |
 
 ---
 
@@ -141,9 +141,13 @@ docker-compose ps
 
 ---
 
-## 🗄️ Database
+## 🗄️ Database — MariaDB (Shared)
 
-All services share a **single MariaDB container**. Each service has its own dedicated database inside it — no need for multiple database containers.
+All services that require a relational database share a **single MariaDB container**. This means only one database engine runs on the system, and each service gets its own isolated database inside it — keeping resource usage low and management simple.
+
+**Services using MariaDB:**
+- **Nextcloud** — file sharing and cloud storage
+- **Firefly III** — personal expense tracker
 
 To create a new database for an additional service:
 
@@ -158,24 +162,32 @@ GRANT ALL PRIVILEGES ON newservice.* TO 'newuser'@'%';
 FLUSH PRIVILEGES;
 ```
 
+> ⚠️ Never use the `root` user for application access. Always create a dedicated user per service as shown above.
+
 ---
 
-## 💰 Actual Budget Setup
+## 💰 Firefly III Setup
 
-Actual Budget is a self-hosted family expense tracker with a clean web UI. It uses **SQLite** internally — no database configuration needed.
+Firefly III is a self-hosted personal finance manager that connects to the shared **MariaDB** instance. Before starting the container, make sure the `firefly` database and its dedicated user exist in MariaDB (see the section above).
 
-1. Access the web UI at `http://homeserver:5006`
-2. Create a budget file and set a password on first login
-3. Add expenses manually or import via CSV
-4. Organize by categories to track family spending
+1. Make sure your `.env` has `APP_KEY` set — this is a 32-character random string used to encrypt sensitive data. Generate one with:
 
-> **Mobile access:** Use any browser on your phone at `http://homeserver_ip:5006`. An unofficial companion app is also available for Android/iOS.
+```bash
+echo "base64:$(openssl rand -base64 32)"
+```
+
+2. Access the web UI at `http://homeserver:PORT_FIREFLY` (default port defined in `.env`)
+3. Create your admin account on first login
+4. Add accounts (bank, cash, credit card) and start logging transactions
+5. Use budgets, categories and tags to organize your expenses
+
+> **Mobile access:** Firefly III has an official companion app available for Android and iOS that connects to your self-hosted instance via the API.
 
 ---
 
 ## 🎵 Navidrome Setup
 
-1. Make sure your music library is available at `/mnt/music` on the host (or update `BASE_PATH` in `.env`)
+1. Make sure your music library is available at `/mnt/music` on the host (or update the volume path in `docker-compose.yml`)
 2. Access the web UI at `http://homeserver:4533`
 3. Create your admin account on first login
 4. Navidrome will automatically scan the music library every hour
@@ -208,6 +220,85 @@ The HomeServer uses **Tailscale** to provide secure remote access without openin
 
 ---
 
+## 🔑 SSH Key Setup
+
+SSH key-based authentication is required to access the server — password login is disabled for security.
+
+### 1. Generate the key pair (on your local machine)
+
+**Linux / macOS:**
+```bash
+ssh-keygen -t ed25519 -C "your_comment"
+```
+
+**Windows (PowerShell):**
+```powershell
+ssh-keygen -t ed25519 -C "your_comment"
+```
+
+When prompted:
+- **Path** — press Enter to use the default (`~/.ssh/id_ed25519`) or specify a custom path
+- **Passphrase** — recommended, adds an extra layer of protection if the private key is ever stolen
+
+This generates two files:
+- `~/.ssh/id_ed25519` — **private key** (never share this)
+- `~/.ssh/id_ed25519.pub` — **public key** (this goes on the server)
+
+### 2. Copy the public key to the server
+
+**Linux / macOS:**
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub user@homeserver_ip
+```
+
+**Windows (manual method):**
+```powershell
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh user@homeserver_ip "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+```
+
+### 3. Verify the connection
+
+```bash
+ssh -i ~/.ssh/id_ed25519 user@homeserver_ip
+```
+
+If it connects without asking for a password (or only asks for the key passphrase), the setup is correct.
+
+### 4. Disable password login on the server
+
+Once you've verified key access works, disable password authentication to harden the server:
+
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+
+Set or confirm these values:
+```
+PasswordAuthentication no
+PubkeyAuthentication yes
+PermitRootLogin no
+```
+
+Then restart SSH:
+```bash
+sudo systemctl restart ssh
+```
+
+> ⚠️ Make sure your key works **before** disabling password login, or you risk locking yourself out.
+
+### 5. Optional — Simplify connections with SSH config
+
+Add this to `~/.ssh/config` on your local machine to connect with just `ssh homeserver`:
+
+```
+Host homeserver
+    HostName 100.x.y.z        # Tailscale IP or local IP
+    User yourusername
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+---
+
 ## 🔒 Security
 
 * **Tailscale Isolation** — No port forwarding needed, reduces attack surface
@@ -228,7 +319,7 @@ docker-compose ps
 docker-compose logs -f nextcloud
 
 # Restart a single service
-docker-compose restart actual_server
+docker-compose restart firefly_iii
 
 # Stop all containers
 docker-compose down

@@ -14,7 +14,7 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     networks:
-      - homelab-net
+      - obscura_net
     healthcheck: 
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       timeout: 20s
@@ -43,7 +43,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Minecraft Bedrock -- Xbox Compatible ====== #
   minecraft:
@@ -68,7 +68,7 @@ services:
       - 1.1.1.1
       - 8.8.8.8
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= qBittorrent ====== #
   qbittorrent:
@@ -90,7 +90,7 @@ services:
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= AdGuard Home (blocco pubblicità + DNS) ====== #
   adguardhome:
@@ -109,7 +109,7 @@ services:
     environment:
       - TZ=${TZ}
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Node Exporter (System Metrics) ====== #
   node_exporter:
@@ -128,7 +128,7 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= cAdvisor (Docker Metrics Exporter) ====== #
   cadvisor:
@@ -148,7 +148,7 @@ services:
     devices:
       - /dev/kmsg
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Prometheus (Monitoring) ====== #
   prometheus:
@@ -171,7 +171,7 @@ services:
       - node_exporter
       - cadvisor
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Alertmanager (Telegram Notifications) ====== #
   alertmanager:
@@ -187,7 +187,7 @@ services:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Grafana (Metrics Dashboard) ====== #
   grafana:
@@ -205,7 +205,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Mosquitto for Home Assistant ======= #
   mosquitto:
@@ -219,7 +219,7 @@ services:
       - ${BASE_PATH}/mosquitto/data:/mosquitto/data
       - ${BASE_PATH}/mosquitto/log:/mosquitto/log
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Zigbee2MQTT ======= #
   zigbee2mqtt:
@@ -237,7 +237,7 @@ services:
     depends_on:
       - mosquitto
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Home Assistant ======= #
   homeassistant:
@@ -267,7 +267,7 @@ services:
       - "${PORT_KAVITA}:5000"
     restart: unless-stopped
     networks:
-      - homelab-net
+      - obscura_net
 
 # ======= Navidrome -- Music Player ======= #
   navidrome:
@@ -284,25 +284,31 @@ services:
       ND_SCANSCHEDULE: 1h
       ND_LOGLEVEL: info
     networks:
-      - homelab-net
+      - obscura_net
 
-# ======= Actual Budget -- Family Expense Tracker ======= #
-  actual_server:
-    image: docker.io/actualbudget/actual-server:latest
-    container_name: actual_budget
+# ======= Firefly III -- Budgeting ======= #
+  firefly_iii:
+    image: fireflyiii/core:latest
+    container_name: firefly_III
     restart: unless-stopped
     ports:
-      - "${PORT_ACTUAL_BUDGET}:5006"
-    volumes:
-      - ${BASE_PATH}/actual-budget:/data
-    healthcheck:
-      test: ['CMD-SHELL', 'node src/scripts/health-check.js']
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
+      - "${PORT_FIREFLY}:8080"
+    environment:
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=db
+      - DB_PORT=${DB_FIREFLY_PORT}
+      - DB_CONNECTION=mysql
+      - DB_DATABASE=firefly
+      - DB_USERNAME=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - APP_URL=${LOCAL_IP}
+      - TZ=${TZ}
+      - TRUSTED_PROXIES=**
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
-      - homelab-net
+      - obscura_net
 
 volumes:
   prometheus_data:
@@ -310,5 +316,5 @@ volumes:
   grafana_data:
 
 networks:
-  homelab-net:
+  obscura_net:
     driver: bridge

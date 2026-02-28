@@ -38,7 +38,6 @@ mkdir -p /home/$USER/ObscuraHomeStack/containers/nextcloud/{config,data,db} \
          /home/$USER/ObscuraHomeStack/containers/zigbee2mqtt \
          /home/$USER/ObscuraHomeStack/containers/adguardhome/{conf,work} \
          /home/$USER/ObscuraHomeStack/containers/navidrome/{data,music} \
-         /home/$USER/ObscuraHomeStack/containers/actual-budget
 
 # -------------------------
 # Creazione Python virtual env
