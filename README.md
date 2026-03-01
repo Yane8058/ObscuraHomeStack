@@ -345,7 +345,8 @@ See `cronjobs_template.txt` for example scheduling. Key jobs:
 
 ## 🚀 Future Implementation
 
-Jellyfin software media system self-hosted
+- Jellyfin software media system self-hosted
+- Paperless-ngx for documents digitalization and storage
 
 ---
 
