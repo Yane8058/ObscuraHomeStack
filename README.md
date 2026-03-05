@@ -343,11 +343,12 @@ See `cronjobs_template.txt` for example scheduling. Key jobs:
 
 ---
 
-## 🚀 Future Implementation
+## 🚀 Future Implementations
 
-- Jellyfin software media system self-hosted
-- Paperless-ngx for documents digitalization and storage
-
+- Jellyfin — Self‑hosted media system (Module)
+- Paperless Suite — Paperless‑NGX + Paperless AI + Paperless GPT with local LLM (Ollama: Llama 3.2 / 3B) for intelligent document processing (Module)
+- OpenWebUI — Web AI interface using the same local LLM backend (Module)
+  
 ---
 
 ## 📄 License
