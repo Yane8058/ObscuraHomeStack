@@ -348,6 +348,7 @@ See `cronjobs_template.txt` for example scheduling. Key jobs:
 - Jellyfin — Self‑hosted media system (Module)
 - Paperless Suite — Paperless‑NGX + Paperless AI + Paperless GPT with local LLM (Ollama: Llama 3.2 / 3B) for intelligent document processing (Module)
 - OpenWebUI — Web AI interface using the same local LLM backend (Module)
+- Immich — High‑performance self‑hosted photo & video backup system with automatic uploads, facial recognition, and AI‑powered search (Module)
   
 ---
 
