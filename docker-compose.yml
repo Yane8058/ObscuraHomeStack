@@ -318,3 +318,4 @@ volumes:
 networks:
   obscura_net:
     driver: bridge
+    name: obscura_net

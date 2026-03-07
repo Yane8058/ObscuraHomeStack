@@ -191,4 +191,5 @@ services:
 
 networks:
   obscura_net:
+    name: obscura_net
     external: true   # already created by the main stack
