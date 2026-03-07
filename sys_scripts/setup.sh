@@ -61,9 +61,9 @@ fi
 # -------------------------
 # Firewall Configuration
 # -------------------------
-echo -e "\n Configuring UFW firewall..."
-chmod +x py_scripts/firewall.py
-sudo python3 py_scripts/firewall.py
+# echo -e "\n Configuring UFW firewall..."
+# chmod +x py_scripts/firewall.py
+# sudo python3 py_scripts/firewall.py
 
 deactivate  # py virtual env deactivation
 cd ~
