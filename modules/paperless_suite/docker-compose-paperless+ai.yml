@@ -1,0 +1,194 @@
+# ============================================================
+# PAPERLESS SUITE — ObscuraHomeStack Module
+# Location: ObscuraHomeStack/modules/paperless/
+#
+# Usage (run from the repo root):
+#   docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml up -d
+#
+# All variables are loaded from the root .env file.
+#
+# Dependencies from the main stack:
+#   - network:  obscura_net        (must already be running)
+#   - db:       mariadb container  (must already be running and healthy)
+# ============================================================
+
+services:
+
+# ======= Redis (dedicated broker for Paperless) ======= #
+  paperless_redis:
+    image: redis:7-alpine
+    container_name: paperless_redis
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/paperless/redis:/data
+    networks:
+      - obscura_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ======= Gotenberg (Office/HTML to PDF conversion) ======= #
+  paperless_gotenberg:
+    image: docker.io/gotenberg/gotenberg:8
+    container_name: paperless_gotenberg
+    restart: unless-stopped
+    command:
+      - gotenberg
+      - --chromium-disable-javascript=true
+      - --chromium-allow-list=file:///tmp/.*
+    networks:
+      - obscura_net
+
+# ======= Tika (Office/Email document parsing) ======= #
+  paperless_tika:
+    image: docker.io/apache/tika:latest
+    container_name: paperless_tika
+    restart: unless-stopped
+    networks:
+      - obscura_net
+
+# ======= Paperless-ngx (core DMS) ======= #
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    depends_on:
+      paperless_redis:
+        condition: service_healthy
+      paperless_gotenberg:
+        condition: service_started
+      paperless_tika:
+        condition: service_started
+    ports:
+      - "${PORT_PAPERLESS:-8010}:8000"
+    volumes:
+      - ${BASE_PATH}/paperless/data:/usr/src/paperless/data
+      - ${BASE_PATH}/paperless/media:/usr/src/paperless/media
+      - ${BASE_PATH}/paperless/consume:/usr/src/paperless/consume
+      - ${BASE_PATH}/paperless/export:/usr/src/paperless/export
+    environment:
+      # --- Core ---
+      PAPERLESS_REDIS: redis://paperless_redis:6379
+      USERMAP_UID: ${PUID}
+      USERMAP_GID: ${PGID}
+      TZ: ${TZ}
+
+      # --- Database (reuses main stack MariaDB with dedicated credentials) ---
+      # Do NOT reuse MYSQL_USER/MYSQL_PASSWORD — those belong to Nextcloud
+      PAPERLESS_DBENGINE: mariadb
+      PAPERLESS_DBHOST: mariadb
+      PAPERLESS_DBPORT: 3306
+      PAPERLESS_DBNAME: ${PAPERLESS_DB_NAME:-paperless}
+      PAPERLESS_DBUSER: ${PAPERLESS_DB_USER:-paperless}
+      PAPERLESS_DBPASS: ${PAPERLESS_DB_PASSWORD}
+
+      # --- App ---
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_URL: ${PAPERLESS_URL:-http://localhost:8010}
+      PAPERLESS_TIME_ZONE: ${TZ}
+      PAPERLESS_OCR_LANGUAGE: ${PAPERLESS_OCR_LANGUAGE:-ita+eng}
+
+      # --- Admin account (first boot only — comment out after setup and restart) ---
+      PAPERLESS_ADMIN_USER: ${PAPERLESS_ADMIN_USER:-admin}
+      PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD}
+      PAPERLESS_ADMIN_EMAIL: ${PAPERLESS_ADMIN_EMAIL:-admin@local.home}
+
+      # --- Tika + Gotenberg ---
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_ENDPOINT: http://paperless_tika:9998
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless_gotenberg:3000
+    networks:
+      - obscura_net
+
+# ======= Ollama (local LLM engine) ======= #
+  paperless_ollama:
+    image: ollama/ollama:latest
+    container_name: paperless_ollama
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/paperless/ollama:/root/.ollama
+    # --- Nvidia GPU: uncomment to enable ---
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    networks:
+      - obscura_net
+
+# ======= Ollama Init (model pull — one-shot on first boot) ======= #
+  paperless_ollama_init:
+    image: ollama/ollama:latest
+    container_name: paperless_ollama_init
+    restart: "no"
+    depends_on:
+      - paperless_ollama
+    entrypoint: >
+      sh -c "
+        echo 'Waiting for Ollama to be ready...' &&
+        sleep 8 &&
+        OLLAMA_HOST=http://paperless_ollama:11434 ollama pull ${OLLAMA_MODEL:-llama3.2:3b} &&
+        echo 'Model ${OLLAMA_MODEL:-llama3.2:3b} ready.'
+      "
+    volumes:
+      - ${BASE_PATH}/paperless/ollama:/root/.ollama
+    networks:
+      - obscura_net
+
+# ======= Paperless-AI (automatic metadata tagging) ======= #
+  paperless_ai:
+    image: clusterzx/paperless-ai:latest
+    container_name: paperless_ai
+    restart: unless-stopped
+    depends_on:
+      - paperless
+      - paperless_ollama
+    ports:
+      - "${PORT_PAPERLESS_AI:-8011}:3000"
+    volumes:
+      - ${BASE_PATH}/paperless/paperless-ai:/app/data
+    environment:
+      AI_PROVIDER: ollama
+      OLLAMA_API_URL: http://paperless_ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      PAPERLESS_API_URL: http://paperless:8000
+      PAPERLESS_API_TOKEN: ${PAPERLESS_API_TOKEN:-}   # set after first boot
+      PROCESS_PREDEFINED_DOCUMENTS: "yes"
+      SCAN_INTERVAL: ${PAPERLESS_AI_SCAN_INTERVAL:-30}
+      ADD_AI_PROCESSED_TAG: "yes"
+    networks:
+      - obscura_net
+
+# ======= Paperless-GPT (advanced OCR + manual review UI) ======= #
+  paperless_gpt:
+    image: icereed/paperless-gpt:latest
+    container_name: paperless_gpt
+    restart: unless-stopped
+    depends_on:
+      - paperless
+      - paperless_ollama
+    ports:
+      - "${PORT_PAPERLESS_GPT:-8012}:8080"
+    volumes:
+      - ${BASE_PATH}/paperless/paperless-gpt/prompts:/app/prompts
+    environment:
+      LLM_PROVIDER: ollama
+      OLLAMA_HOST: http://paperless_ollama:11434
+      LLM_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      # Vision OCR requires a multimodal model (e.g. minicpm-v, llava)
+      LLM_VISION_MODEL: ${OLLAMA_VISION_MODEL:-minicpm-v}
+      PAPERLESS_BASE_URL: http://paperless:8000
+      PAPERLESS_API_TOKEN: ${PAPERLESS_API_TOKEN:-}   # set after first boot
+      AUTO_TAG: paperless-gpt-auto
+      MANUAL_TAG: paperless-gpt
+      OCR_AUTO_TAG: paperless-gpt-ocr-auto
+    networks:
+      - obscura_net
+
+networks:
+  obscura_net:
+    external: true   # already created by the main stack

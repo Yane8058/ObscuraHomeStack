@@ -1,37 +1,63 @@
-# ============== #
+# ======= Environment & Secrets ======= #
 .env
+**/.env
 *.key
 *.crt
 *.pem
 
-# ============== #
+# ======= Private Configs ======= #
 containers/alertmanager.yml
 py_scripts/*.py
 
-# ============== #
+# ======= Nextcloud ======= #
 containers/nextcloud/db/
 containers/nextcloud/data/
 containers/nextcloud/config/
+
+# ======= qBittorrent ======= #
 containers/qbittorrent/config/
 containers/qbittorrent/downloads/
+
+# ======= AdGuard Home ======= #
 containers/adguardhome/work/
+
+# ======= Home Automation ======= #
 containers/homeassistant/
 containers/zigbee2mqtt/
 containers/mosquitto/data/
 containers/mosquitto/log/
+
+# ======= Media & Books ======= #
 containers/navidrome/data/
 containers/kavita/config/
+
+# ======= Minecraft ======= #
 containers/minecraft-bedrock/
+
+# ======= Firefly III ======= #
 containers/fireflyiii/db/
 containers/fireflyiii/data/
 containers/fireflyiii/config/
 
-# ============== #
+# ======= Monitoring ======= #
 containers/prometheus_data/
 containers/grafana_data/
 containers/alertmanager_data/
 
-# ============== #
+# ======= MODULE: Paperless Suite ======= #
+containers/paperless/data/
+containers/paperless/media/
+containers/paperless/consume/
+containers/paperless/export/
+containers/paperless/redis/
+containers/paperless/ollama/
+containers/paperless/paperless-ai/
+containers/paperless/paperless-gpt/
+
+# ======= Logs ======= #
+logs/
+
+# ======= OS & Editor ======= #
 .DS_Store
 Thumbs.db
 *.swp
