@@ -1,15 +1,18 @@
 # ============================================================
 # PAPERLESS SUITE — ObscuraHomeStack Module
-# Location: ObscuraHomeStack/modules/paperless/
+# Location: ObscuraHomeStack/modules/paperless_suite/
 #
 # Usage (run from the repo root):
-#   docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml up -d
+#   docker compose -f docker-compose.yml -f modules/paperless_suite/docker-compose-paperless+ai.yml up -d
 #
 # All variables are loaded from the root .env file.
 #
 # Dependencies from the main stack:
 #   - network:  obscura_net        (must already be running)
 #   - db:       mariadb container  (must already be running and healthy)
+#
+# First boot — pull the Ollama model manually after startup:
+#   docker exec -it paperless_ollama ollama pull llama3.2:3b
 # ============================================================
 
 services:
@@ -55,6 +58,8 @@ services:
     container_name: paperless
     restart: unless-stopped
     depends_on:
+      db:
+        condition: service_healthy
       paperless_redis:
         condition: service_healthy
       paperless_gotenberg:
@@ -117,25 +122,6 @@ services:
     #         - driver: nvidia
     #           count: 1
     #           capabilities: [gpu]
-    networks:
-      - obscura_net
-
-# ======= Ollama Init (model pull — one-shot on first boot) ======= #
-  paperless_ollama_init:
-    image: ollama/ollama:latest
-    container_name: paperless_ollama_init
-    restart: "no"
-    depends_on:
-      - paperless_ollama
-    entrypoint: >
-      sh -c "
-        echo 'Waiting for Ollama to be ready...' &&
-        sleep 8 &&
-        OLLAMA_HOST=http://paperless_ollama:11434 ollama pull ${OLLAMA_MODEL:-llama3.2:3b} &&
-        echo 'Model ${OLLAMA_MODEL:-llama3.2:3b} ready.'
-      "
-    volumes:
-      - ${BASE_PATH}/paperless/ollama:/root/.ollama
     networks:
       - obscura_net
 

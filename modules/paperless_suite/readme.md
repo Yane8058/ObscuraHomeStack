@@ -1,6 +1,6 @@
 # 📄 Paperless Suite
 
-> Module for [ObscuraHomeStack](../../README.md) — Location: `modules/paperless_suite/`
+> Module for [ObscuraHomeStack](../../README.md) — Location: `modules/paperless/`
 
 Self-hosted document management system with fully local AI processing.
 Automatically tags, titles, and classifies documents using a local LLM via Ollama — no cloud services involved.
@@ -24,16 +24,16 @@ All AI processing happens **locally**. No data leaves your machine.
 
 ## Services
 
-| Container | Role |
+| Container | Role | Port |
 |---|---|---|
-| `paperless` | Core DMS (paperless-ngx) |
-| `paperless_redis` | Internal message broker |
-| `paperless_gotenberg` | Office / HTML → PDF conversion |
-| `paperless_tika` | Office / Email document parsing |
-| `paperless_ollama` | Local LLM engine (Ollama) |
-| `paperless_ollama_init` | One-shot model pull on first boot |
-| `paperless_ai` | Automatic metadata tagging |
-| `paperless_gpt` | Advanced OCR + manual review UI |
+| `paperless` | Core DMS (paperless-ngx) | `8010` |
+| `paperless_redis` | Internal message broker | — |
+| `paperless_gotenberg` | Office / HTML → PDF conversion | — |
+| `paperless_tika` | Office / Email document parsing | — |
+| `paperless_ollama` | Local LLM engine (Ollama) | `11434` |
+
+| `paperless_ai` | Automatic metadata tagging | `8011` |
+| `paperless_gpt` | Advanced OCR + manual review UI | `8012` |
 
 ---
 
@@ -84,13 +84,14 @@ All commands run from the **repo root**:
 
 ```bash
 docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml up -d
-```
 
-On first boot, `paperless_ollama_init` automatically pulls the configured model (~2 GB for `llama3.2:3b`). Monitor the download:
+Then pull the Ollama model manually:
 
 ```bash
-docker logs -f paperless_ollama_init
+docker exec -it paperless_ollama ollama pull llama3.2:3b
 ```
+```
+
 
 ### 3. Configure the API token
 
@@ -178,6 +179,12 @@ All commands run from the **repo root**.
 # Start main stack + paperless module
 docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml up -d
 
+Then pull the Ollama model manually:
+
+```bash
+docker exec -it paperless_ollama ollama pull llama3.2:3b
+```
+
 # Stop paperless module only
 docker compose -f modules/paperless/docker-compose.yml down
 
@@ -192,6 +199,12 @@ docker logs -f paperless_gpt
 # Update all images
 docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml pull
 docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml up -d
+
+Then pull the Ollama model manually:
+
+```bash
+docker exec -it paperless_ollama ollama pull llama3.2:3b
+```
 
 # Export / backup all documents
 docker exec paperless document_exporter ../export
@@ -230,9 +243,8 @@ ${BASE_PATH}/paperless/
 Make sure `PAPERLESS_URL` is set to your LAN IP, not `localhost`. Inside a container, `localhost` resolves to the container itself, not the host.
 
 **Ollama model not found**
-Check that `paperless_ollama_init` completed successfully:
+Check available models with:
 ```bash
-docker logs paperless_ollama_init
 docker exec paperless_ollama ollama list
 ```
 
