@@ -54,6 +54,11 @@ containers/paperless/ollama/
 containers/paperless/paperless-ai/
 containers/paperless/paperless-gpt/
 
+# ======= MODULE: Jellyfin ======= #
+containers/jellyfin/library/
+containers/jellyfin/tvshows/
+containers/jellyfin/movies/
+
 # ======= Logs ======= #
 logs/
 

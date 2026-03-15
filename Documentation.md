@@ -24,6 +24,7 @@ Complete reference for all services and modules in the stack.
 - [Security](#security)
 - [Cron Jobs](#cron-jobs)
 - [Module — Paperless Suite](#module--paperless-suite)
+- [Module — Jellyfin](#module--jellyfin)
 
 ---
 
@@ -498,3 +499,78 @@ docker compose -f docker-compose.yml -f modules/paperless/docker-compose.yml up 
 📖 [paperless-ai GitHub](https://github.com/clusterzx/paperless-ai)
 📖 [paperless-gpt GitHub](https://github.com/icereed/paperless-gpt)
 📖 [Ollama Documentation](https://ollama.com/library)
+
+---
+
+## Module — Jellyfin
+
+Self-hosted media server for movies and TV shows.
+
+See [modules/jellyfin/README.md](modules/jellyfin/README.md) for the full setup guide.
+
+### Quick start
+
+```bash
+# 1. Run the setup script
+chmod +x modules/jellyfin/jellyfin-setup.sh
+./modules/jellyfin/jellyfin-setup.sh
+
+# 2. Add the Jellyfin variables to your root .env
+PORT_JELLYFIN=8096
+JELLYFIN_URL=https://jellyfin.yourdomain.com   # optional
+
+# 3. Start the module
+docker compose -f modules/jellyfin/docker-compose-jellyfin.yml up -d
+```
+
+### First boot
+
+1. Access `http://<LOCAL_IP>:8096`
+2. Follow the setup wizard — create the admin account
+3. Add your media libraries:
+   - Movies → `/media/movies`
+   - TV Shows → `/media/tvshows`
+
+### Media folder structure
+
+Place your files on the host under `containers/jellyfin/` following this layout:
+
+```
+containers/jellyfin/
+├── movies/
+│   └── Inception (2010)/
+│       └── Inception (2010).mkv
+└── tvshows/
+    └── Breaking Bad/
+        └── Season 01/
+            └── S01E01.mkv
+```
+
+> Follow the [Jellyfin naming conventions](https://jellyfin.org/docs/general/server/media/movies) for correct metadata matching.
+
+### Ports
+
+| Port | Protocol | Description |
+|---|---|---|
+| `8096` | TCP | Web UI — main access |
+| `8920` | TCP | HTTPS — optional, only without reverse proxy |
+| `7359` | UDP | LAN client auto-discovery — optional |
+| `1900` | UDP | DLNA discovery — optional |
+
+### Recommended clients
+
+| Platform | Client |
+|---|---|
+| Android TV / Google TV | Jellyfin (Play Store) |
+| Samsung Tizen | Jellyfin (Samsung App Store) |
+| LG webOS | Jellyfin (LG Content Store) |
+| Apple TV | Jellyfin (App Store) |
+| Fire TV Stick | Jellyfin (Amazon Store) |
+| Android / iOS | Jellyfin mobile app |
+
+### Remote access
+
+Jellyfin works on LAN out of the box. For remote access, install **Tailscale** on the client device (natively supported on Android TV) and connect using the server's Tailscale IP — no port forwarding needed.
+
+📖 [Jellyfin Documentation](https://jellyfin.org/docs/)
+📖 [linuxserver/jellyfin image](https://docs.linuxserver.io/images/docker-jellyfin/)

@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/jellyfin/library:/config
+      - ${BASE_PATH}/jellyfin/tvshows:/media/tvshows
+      - ${BASE_PATH}/jellyfin/movies:/media/movies
+    ports:
+      - ${PORT_JELLYFIN}:8096
+    restart: unless-stopped
+    networks:
+      - obscura_net
+
+networks:
+  obscura_net:
+    external: true

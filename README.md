@@ -42,8 +42,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | Module | Description | Status |
 |---|---|---|
 | **Paperless Suite** | Document management + local AI (Ollama) | ✅ Available |
-| **Jellyfin** | Media server | 🔜 Planned |
-| **OpenWebUI** | Web AI interface | 🔜 Planned |
+| **Jellyfin** | Media server | ✅ Available |
 | **Immich** | Photo & video backup with AI search | 🔜 Planned |
 
 ---
@@ -81,15 +80,20 @@ ObscuraHomeStack/
 │   └── prometheus.yml                      # Prometheus config (not versioned)
 │
 ├── modules/
-│   └── paperless_suite/                    # Paperless Suite module
-│       ├── docker-compose-paperless.yml
-│       ├── paperless-setup.sh              # Module setup script
+│   ├── paperless_suite/                    # Paperless Suite module
+│   │   ├── docker-compose-paperless.yml
+│   │   ├── paperless-setup.sh              # Module setup script
+│   │   └── README.md
+│   │
+│   └── jellyfin/                           # Jellyfin module
+│       ├── docker-compose-jellyfin.yml
+│       ├── jellyfin-setup.sh               # Module setup script
 │       └── README.md
 │
 ├── logs/                                   # System and backup logs (not versioned)
 │
 ├── py_scripts/
-│   ├── firewall.py                         # UFW config (not versioned)
+│   ├── firewall.py                         # Firewall config (not versioned)
 │   └── requirements.txt
 │
 ├── sys_scripts/
@@ -115,4 +119,4 @@ ObscuraHomeStack/
 
 MIT License — open source, use freely.
 
-💬 Issues and pull requests are welcome. Happy homelabing! 💻
+💬 Issues and pull requests are welcome! 💻
