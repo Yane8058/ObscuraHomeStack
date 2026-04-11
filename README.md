@@ -43,7 +43,6 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 |---|---|---|
 | **Paperless Suite** | Document management + local AI (Ollama) | ✅ Available |
 | **Jellyfin** | Media server | ✅ Available |
-| **Immich** | Photo & video backup with AI search | 🔜 Planned |
 
 ---
 
