@@ -36,6 +36,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Node Exporter** | System metrics | ✅ Active |
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
+| **Caddy** | Reverse Proxy + automatic HTTPS (edge/ingress layer) | 🔜 Planned |
 
 ### 🧩 Modules
 
@@ -43,7 +44,6 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 |---|---|---|
 | **Paperless Suite** | Document management + local AI (Ollama) | ✅ Available |
 | **Jellyfin** | Media server | ✅ Available |
-| **Caddy** | Reverse Proxy + automatic HTTPS (edge/ingress layer) | 🔜 Planned |
 | **Ansible Setup** | Infrastructure as Code for automated deployment | 🔜 Planned |
 
 ---
