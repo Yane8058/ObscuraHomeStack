@@ -34,7 +34,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
 
-## 💻 Alternative Deploymeny
+## 💻 Alternative Deployment
 
 | Service | Description | Status |
 |---|---|---|
