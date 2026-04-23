@@ -1,5 +1,20 @@
 services:
 
+# ======= Caddy -- Reverse Proxy ======= #
+  caddy:
+      image: caddy:latest
+      container_name: caddy
+      restart: unless-stopped
+      ports:
+        - "80:80"    # IP reverse proxy
+        - "443:443"  #  HTTPS in the future
+      volumes:
+        - ./Caddyfile:/etc/caddy/Caddyfile
+        - ${BASE_PATH}/caddy/data:/data
+        - ${BASE_PATH}/caddy/config:/config
+      networks:
+        - obscura_net
+
 # ======= Database for Nextcloud -- Maria DB ======= #
   db:
     image: docker.io/mariadb:10.6

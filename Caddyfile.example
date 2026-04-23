@@ -1,0 +1,8 @@
+# Caddyfile.example
+
+{$TAILSCALE_URL} {
+    handle_path /ha* {
+        reverse_proxy homeassistant:<port>
+    }
+    # ... Other services here ...
+}

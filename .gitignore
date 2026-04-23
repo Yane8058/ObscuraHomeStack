@@ -4,6 +4,7 @@
 *.key
 *.crt
 *.pem
+Caddyfile
 
 # ======= Private Configs ======= #
 containers/alertmanager.yml
@@ -59,7 +60,8 @@ containers/jellyfin/library/
 containers/jellyfin/tvshows/
 containers/jellyfin/movies/
 
-# ======= Logs ======= #
+# ======= Persistent Data & Logs ======= #
+containers/
 logs/
 
 # ======= OS & Editor ======= #
@@ -69,3 +71,8 @@ Thumbs.db
 *.swo
 .idea/
 .vscode/
+
+# Ignore db
+*.db
+*.db-*
+*.sqlite
