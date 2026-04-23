@@ -30,12 +30,8 @@ docker-compose --version
 echo -e "\n📁 Creating container folders..."
 mkdir -p /home/$USER/ObscuraHomeStack/containers/nextcloud/{config,data,db} \
          /home/$USER/ObscuraHomeStack/containers/qbittorrent/{config,downloads} \
-         /home/$USER/ObscuraHomeStack/containers/homeassistant/config \
-         /home/$USER/ObscuraHomeStack/containers/minecraft-bedrock \
          /home/$USER/ObscuraHomeStack/containers/kavita/{config,books} \
          /home/$USER/ObscuraHomeStack/containers/kavita/books/all_books \
-         /home/$USER/ObscuraHomeStack/containers/mosquitto/{config,data,log} \
-         /home/$USER/ObscuraHomeStack/containers/zigbee2mqtt \
          /home/$USER/ObscuraHomeStack/containers/adguardhome/{conf,work} \
          /home/$USER/ObscuraHomeStack/containers/navidrome/{data,music} \
 

@@ -22,9 +22,7 @@ mkdir -p "$BASE_PATH/jellyfin/library"
 mkdir -p "$BASE_PATH/jellyfin/tvshows"
 mkdir -p "$BASE_PATH/jellyfin/movies"
 
-echo "✅ Directories created:"
-echo "   - $BASE_PATH/jellyfin/library"
-echo "   - $BASE_PATH/jellyfin/tvshows"
-echo "   - $BASE_PATH/jellyfin/movies"
+chown -R 1000:1000 $BASE_PATH/jellyfin
+chmod -R 755 $BASE_PATH/jellyfin
 
 echo -e "\n✅ Jellyfin environment ready!"

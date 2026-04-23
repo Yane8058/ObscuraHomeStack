@@ -217,71 +217,6 @@ AdGuard Home is configured to listen on port `853` for DoT. Configure clients to
 
 ---
 
-## Home Assistant
-
-Smart home automation platform.
-
-### Setup
-
-Home Assistant runs in `network_mode: host` for full local network discovery (mDNS, Bluetooth, etc.).
-
-1. Access `http://<LOCAL_IP>:8123`
-2. Follow the onboarding wizard
-3. Integrations are added via **Settings → Devices & Services**
-
-### Tips
-
-- Enable **Advanced Mode** in your user profile for more options
-- Use **HACS** (Home Assistant Community Store) for additional integrations and themes
-- Configure automations in **Settings → Automations**
-
-📖 [Home Assistant Documentation](https://www.home-assistant.io/docs/)
-📖 [HACS](https://hacs.xyz/)
-
----
-
-## Mosquitto
-
-MQTT message broker used by Home Assistant and Zigbee2MQTT.
-
-### Configuration
-
-Config files are in `${BASE_PATH}/mosquitto/config/`. A basic `mosquitto.conf`:
-
-```
-listener 1883
-allow_anonymous true
-persistence true
-persistence_location /mosquitto/data/
-log_dest file /mosquitto/log/mosquitto.log
-```
-
-> For production, disable anonymous access and configure username/password authentication.
-
-📖 [Mosquitto Documentation](https://mosquitto.org/documentation/)
-
----
-
-## Zigbee2MQTT
-
-Bridges Zigbee devices to MQTT, making them available in Home Assistant.
-
-### Setup
-
-1. Connect your Zigbee USB adapter (e.g. ConBee II, Sonoff Zigbee 3.0)
-2. Uncomment the `devices` section in `docker-compose.yml` and set the correct USB path:
-   ```yaml
-   devices:
-     - /dev/ttyUSB0:/dev/ttyUSB0
-   ```
-3. Access the UI at `http://<LOCAL_IP>:8083`
-4. Enable **Permit join** to pair new devices
-
-📖 [Zigbee2MQTT Documentation](https://www.zigbee2mqtt.io/guide/getting-started/)
-📖 [Supported Devices](https://www.zigbee2mqtt.io/supported-devices/)
-
----
-
 ## Kavita
 
 eBook, manga, and comic reader.
@@ -298,30 +233,6 @@ eBook, manga, and comic reader.
 Use the **Kavita** official app or any OPDS-compatible reader.
 
 📖 [Kavita Documentation](https://wiki.kavitareader.com/)
-
----
-
-## Minecraft Bedrock
-
-Minecraft server compatible with Xbox, mobile, and Windows 10/11 clients.
-
-### Configuration
-
-Server settings are managed via environment variables in `docker-compose.yml`:
-
-| Variable | Default | Description |
-|---|---|---|
-| `SERVER_NAME` | BrothersSurvival | Server name shown in the list |
-| `GAMEMODE` | survival | Game mode |
-| `DIFFICULTY` | easy | Difficulty level |
-| `MAX_PLAYERS` | 5 | Maximum concurrent players |
-| `ONLINE_MODE` | true | Xbox Live authentication |
-
-### Connecting
-
-Use the server's LAN IP and port `19132` (UDP). For remote access, connect via Tailscale IP.
-
-📖 [itzg/minecraft-bedrock-server](https://github.com/itzg/docker-minecraft-bedrock-server)
 
 ---
 
@@ -464,6 +375,73 @@ crontab -e
 
 ---
 
+## Module — Domotic House
+
+## Home Assistant
+
+Smart home automation platform.
+
+### Setup
+
+Home Assistant runs in `network_mode: host` for full local network discovery (mDNS, Bluetooth, etc.).
+
+1. Access `http://<LOCAL_IP>:8123`
+2. Follow the onboarding wizard
+3. Integrations are added via **Settings → Devices & Services**
+
+### Tips
+
+- Enable **Advanced Mode** in your user profile for more options
+- Use **HACS** (Home Assistant Community Store) for additional integrations and themes
+- Configure automations in **Settings → Automations**
+
+📖 [Home Assistant Documentation](https://www.home-assistant.io/docs/)
+📖 [HACS](https://hacs.xyz/)
+
+---
+
+## Mosquitto
+
+MQTT message broker used by Home Assistant and Zigbee2MQTT.
+
+### Configuration
+
+Config files are in `${BASE_PATH}/mosquitto/config/`. A basic `mosquitto.conf`:
+
+```
+listener 1883
+allow_anonymous true
+persistence true
+persistence_location /mosquitto/data/
+log_dest file /mosquitto/log/mosquitto.log
+```
+
+> For production, disable anonymous access and configure username/password authentication.
+
+📖 [Mosquitto Documentation](https://mosquitto.org/documentation/)
+
+---
+
+## Zigbee2MQTT
+
+Bridges Zigbee devices to MQTT, making them available in Home Assistant.
+
+### Setup
+
+1. Connect your Zigbee USB adapter (e.g. ConBee II, Sonoff Zigbee 3.0)
+2. Uncomment the `devices` section in `docker-compose.yml` and set the correct USB path:
+   ```yaml
+   devices:
+     - /dev/ttyUSB0:/dev/ttyUSB0
+   ```
+3. Access the UI at `http://<LOCAL_IP>:8083`
+4. Enable **Permit join** to pair new devices
+
+📖 [Zigbee2MQTT Documentation](https://www.zigbee2mqtt.io/guide/getting-started/)
+📖 [Supported Devices](https://www.zigbee2mqtt.io/supported-devices/)
+
+---
+
 ## Module — Paperless Suite
 
 Self-hosted document management with fully local AI processing.
@@ -574,3 +552,30 @@ Jellyfin works on LAN out of the box. For remote access, install **Tailscale** o
 
 📖 [Jellyfin Documentation](https://jellyfin.org/docs/)
 📖 [linuxserver/jellyfin image](https://docs.linuxserver.io/images/docker-jellyfin/)
+
+
+## Module Gaming
+
+### Minecraft Bedrock
+
+Minecraft server compatible with Xbox, mobile, and Windows 10/11 clients.
+
+### Configuration
+
+Server settings are managed via environment variables in `docker-compose.yml`:
+
+| Variable | Default | Description |
+|---|---|---|
+| `SERVER_NAME` | BrothersSurvival | Server name shown in the list |
+| `GAMEMODE` | survival | Game mode |
+| `DIFFICULTY` | easy | Difficulty level |
+| `MAX_PLAYERS` | 5 | Maximum concurrent players |
+| `ONLINE_MODE` | true | Xbox Live authentication |
+
+### Connecting
+
+Use the server's LAN IP and port `19132` (UDP). For remote access, connect via Tailscale IP.
+
+📖 [itzg/minecraft-bedrock-server](https://github.com/itzg/docker-minecraft-bedrock-server)
+
+---

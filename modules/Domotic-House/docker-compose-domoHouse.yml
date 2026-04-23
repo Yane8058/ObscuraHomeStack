@@ -1,0 +1,46 @@
+services:
+
+# ======= Mosquitto for Home Assistant ======= #
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "${PORT_MOSQUITTO}:1883"
+    volumes:
+      - ${BASE_PATH}/mosquitto/config:/mosquitto/config
+      - ${BASE_PATH}/mosquitto/data:/mosquitto/data
+      - ${BASE_PATH}/mosquitto/log:/mosquitto/log
+    networks:
+      - obscura_net
+
+# ======= Zigbee2MQTT ======= #
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    ports:
+      - "${PORT_ZIGBEE2MQTT}:8080"
+    volumes:
+      - ${BASE_PATH}/zigbee2mqtt:/app/data
+    environment:
+      - TZ=${TZ}
+    #devices:
+    #  - /dev/ttyUSB0:/dev/ttyUSB0
+    depends_on:
+      - mosquitto
+    networks:
+      - obscura_net
+
+# ======= Home Assistant ======= #
+  homeassistant:
+    image: lscr.io/linuxserver/homeassistant:latest
+    container_name: homeassistant
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/homeassistant:/config
+    restart: unless-stopped

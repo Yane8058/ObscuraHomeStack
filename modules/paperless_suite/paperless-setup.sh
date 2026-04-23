@@ -22,4 +22,4 @@ mkdir -p \
 chown -R 1000:1000 $BASE_PATH/paperless
 chmod -R 755 $BASE_PATH/paperless
 
-echo "     Setup Done    "
+echo -e "\n✅ PAperless environment ready!"

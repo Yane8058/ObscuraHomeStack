@@ -20,23 +20,25 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 
 | Service | Description | Status |
 |---|---|---|
+| **Caddy** | Reverse Proxy + automatic HTTPS (edge/ingress layer) | 🔜 Planned |
 | **MariaDB** | Shared database engine | ✅ Active |
 | **Nextcloud** | Self-hosted cloud storage | ✅ Active |
 | **qBittorrent** | Torrent client | ✅ Active |
 | **AdGuard Home** | DNS + ad blocking | ✅ Active |
-| **Home Assistant** | Smart home automation | ✅ Active |
-| **Mosquitto** | MQTT broker | ✅ Active |
-| **Zigbee2MQTT** | Zigbee device bridge | ✅ Active |
 | **Kavita** | eBook & manga reader | ✅ Active |
 | **Navidrome** | Music streaming | ✅ Active |
 | **Firefly III** | Personal finance tracker | ✅ Active |
-| **Minecraft Bedrock** | Game server (Xbox compatible) | ✅ Active |
 | **Prometheus** | Metrics database | ✅ Active |
 | **Grafana** | Metrics dashboard | ✅ Active |
 | **Node Exporter** | System metrics | ✅ Active |
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
-| **Caddy** | Reverse Proxy + automatic HTTPS (edge/ingress layer) | 🔜 Planned |
+
+## 💻 Alternative Deploymeny
+
+| Service | Description | Status |
+|---|---|---|
+| **Ansible Setup** | Infrastructure as Code for automated Configuration | 🔜 Planned |
 
 ### 🧩 Modules
 
@@ -44,7 +46,8 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 |---|---|---|
 | **Paperless Suite** | Document management + local AI (Ollama) | ✅ Available |
 | **Jellyfin** | Media server | ✅ Available |
-| **Ansible Setup** | Infrastructure as Code for automated Configuration | 🔜 Planned |
+| **Domotic House** | HA + Mosquitto + Zigbee2mqtt | ✅ Available |
+| **Minecraft Bedrock** | Game server (Xbox compatible) | ✅ Available |
 
 ---
 
@@ -86,11 +89,21 @@ ObscuraHomeStack/
 │   │   ├── paperless-setup.sh              # Module setup script
 │   │   └── README.md
 │   │
-│   └── jellyfin/                           # Jellyfin module
-│       ├── docker-compose-jellyfin.yml
-│       ├── jellyfin-setup.sh               # Module setup script
-│       └── README.md
-│
+│   ├── jellyfin/                           # Jellyfin module
+│   |   ├── docker-compose-jellyfin.yml
+│   |   ├── jellyfin-setup.sh               # Module setup script
+│   |   └── README.md
+│   |
+│   ├── Domotic-House/                      # Home Assistant module
+│   │   ├── docker-compose-domoHouse.yml
+│   │   ├── domoHouse-setup.sh              # Module setup script
+│   │   └── README.md
+|   |
+│   ├── Gaming/                             # Gaming stack module
+│   │   ├── docker-compose-gaming.yml
+│   │   ├── gaming-setup.sh                 # Module setup script
+│   │   └── README.md
+|
 ├── logs/                                   # System and backup logs (not versioned)
 │
 ├── py_scripts/
