@@ -11,7 +11,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 - 🔒 Security hardening — UFW, Fail2Ban, SSH keys, ClamAV
 - 📊 Full monitoring — Prometheus, Grafana, Alertmanager (Telegram)
 - 🌐 Remote access via **Tailscale** VPN — no port forwarding needed
-- 🧩 Modular design — optional stacks in `modules/`
+- 🧩 Modular Design — Specific stacks (Gaming, Domotics, Media) in modules/
 - 🕒 Automated backups and updates via cron jobs
 
 ---
@@ -20,7 +20,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 
 | Service | Description | Status |
 |---|---|---|
-| **Caddy** | Reverse Proxy + automatic HTTPS (edge/ingress layer) | 🔜 Planned |
+| **Caddy** | Reverse Proxy | ✅ Active |
 | **MariaDB** | Shared database engine | ✅ Active |
 | **Nextcloud** | Self-hosted cloud storage | ✅ Active |
 | **qBittorrent** | Torrent client | ✅ Active |
@@ -62,11 +62,14 @@ cd ObscuraHomeStack
 cp .env.example .env
 nano .env
 
-# 3. Run setup script
+# 3. Setup Caddy
+cp Caddyfile.example Caddyfile
+
+# 4. Run system preparation script
 chmod +x sys_scripts/setup.sh
 ./sys_scripts/setup.sh
 
-# 4. Start the stack
+# 5. Start the core stack
 docker compose up -d
 ```
 
@@ -90,20 +93,20 @@ ObscuraHomeStack/
 │   │   └── README.md
 │   │
 │   ├── jellyfin/                           # Jellyfin module
-│   |   ├── docker-compose-jellyfin.yml
-│   |   ├── jellyfin-setup.sh               # Module setup script
-│   |   └── README.md
-│   |
+│   │   ├── docker-compose-jellyfin.yml
+│   │   ├── jellyfin-setup.sh               # Module setup script
+│   │   └── README.md
+│   │
 │   ├── Domotic-House/                      # Home Assistant module
 │   │   ├── docker-compose-domoHouse.yml
 │   │   ├── domoHouse-setup.sh              # Module setup script
 │   │   └── README.md
-|   |
-│   ├── Gaming/                             # Gaming stack module
-│   │   ├── docker-compose-gaming.yml
-│   │   ├── gaming-setup.sh                 # Module setup script
-│   │   └── README.md
-|
+│   │
+│   └── Gaming/                             # Gaming stack module
+│       ├── docker-compose-gaming.yml
+│       ├── gaming-setup.sh                 # Module setup script
+│       └── README.md
+│
 ├── logs/                                   # System and backup logs (not versioned)
 │
 ├── py_scripts/
@@ -119,13 +122,14 @@ ObscuraHomeStack/
 ├── .env                                    # Local config (not versioned)
 ├── .env.example                            # Config template
 ├── .gitignore
+├── Caddyfile.example                       # Proxy template for Tailscale/Local
 ├── cronjobs_template.txt
-├── DOCUMENTATION.md                        # Full service documentation
+├── Documentation.md                        # Full service documentation
 ├── LICENSE
 └── README.md
 ```
 
-> ⚠️ Not versioned for security: `.env`, `containers/alertmanager.yml`, `py_scripts/firewall.py`
+> ⚠️ Not versioned for security: `.env, Caddyfile, containers/alertmanager.yml, py_scripts/firewall.py`
 
 ---
 
