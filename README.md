@@ -1,4 +1,6 @@
 # 🧰 ObscuraHomeStack
+---
+
 <img width="250" height="350" alt="ObscuraHomeStack_Logo" src="https://github.com/user-attachments/assets/fa80b8d9-b370-4150-a73a-d0369bce4cf9" />
 
 Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, monitored, and secure.
@@ -33,12 +35,6 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Node Exporter** | System metrics | ✅ Active |
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
-
-## 💻 Alternative Deployment
-
-| Service | Description | Status |
-|---|---|---|
-| **Ansible Setup** | Infrastructure as Code for automated Configuration | 🔜 Planned |
 
 ### 🧩 Modules
 
