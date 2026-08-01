@@ -149,6 +149,7 @@ services:
     volumes:
       - ${BASE_PATH}/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ${BASE_PATH}/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      # - ${BASE_PATH}/changedetection_token.txt:/etc/prometheus/changedetection_token.txt:ro <-- Uncomment for the module ChangeDetection.io
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -156,6 +157,7 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=5y'
     depends_on:
       - node_exporter
       - cadvisor

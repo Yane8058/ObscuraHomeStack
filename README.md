@@ -44,7 +44,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Jellyfin** | Media server | ✅ Available |
 | **Domotic House** | HA + Mosquitto + Zigbee2mqtt | ✅ Available |
 | **Minecraft Bedrock** | Game server (Xbox compatible) | ✅ Available |
-
+| **ChangeDetection** | Url live scraping + mounting history on Grafana| 🔜 Soon |
 ---
 
 ## ⚙️ Quick Start

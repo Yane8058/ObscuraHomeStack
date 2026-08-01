@@ -1,0 +1,66 @@
+services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: changedetection
+    hostname: changedetection
+    ports:
+      - "${CH_DET_EXT}:${CH_DET_INT}"
+    environment:
+      - PLAYWRIGHT_DRIVER_URL=ws://playwright-chrome:${healthcheck_playwright}
+      - TZ=${TZ}
+    volumes:
+      - changedetection-data:/datastore
+    depends_on:
+      - playwright-chrome
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'        
+          memory: 1024M      
+        reservations:
+          cpus: '0.2'        
+          memory: 256M       
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${CH_DET_INT}/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - obscura_net
+
+  playwright-chrome:
+    image: dgtlmoon/sockpuppetbrowser:latest
+    container_name: playwright-chrome
+    hostname: playwright-chrome
+    environment:
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1020
+      - SCREEN_DEPTH=24
+      - MAX_CONCURRENT_SESSIONS=10
+      - TZ=${TZ}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'        
+          memory: 2048M      
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost ${healthcheck_playwright} || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - obscura_net
+
+volumes:
+  changedetection-data:
+
+networks:
+  obscura_net:
+    external: true

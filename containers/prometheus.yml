@@ -1,24 +1,38 @@
 global:
-  scrape_interval: 15s
-
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-            - "alertmanager:9093"
-
-rule_files:
-  - "alert_rules.yml"
+  scrape_interval: 30s     
+  evaluation_interval: 30s
 
 scrape_configs:
-  - job_name: "prometheus"
+  # 1. Job per ChangeDetection.io
+  - job_name: 'changedetection'
+    metrics_path: '/metrics'
+    authorization:
+      credentials: "API_KEY_OF_CHANGEDETECTION"
     static_configs:
-      - targets: ["prometheus:9090"]
+      - targets: ['changedetection:5000']
 
-  - job_name: "node_exporter"
+  # 2. Job per cAdvisor (Filtered)
+  - job_name: 'cadvisor'
+    scrape_interval: 60s
     static_configs:
-      - targets: ["node_exporter:9100"]
+      - targets: ['cadvisor:8080']
+    metric_relabel_configs:
+      # It retains ONLY the metrics that are essential for monitoring containers
+      - source_labels: [__name__]
+        regex: '(container_cpu_usage_seconds_total|container_memory_usage_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_fs_usage_bytes|container_start_time_seconds)'
+        action: keep
 
-  - job_name: "cadvisor"
+  # 3. Job per Node Exporter (Filtered)
+  - job_name: 'node_exporter'
+    scrape_interval: 60s
     static_configs:
-      - targets: ["cadvisor:8080"]
+      - targets: ['node-exporter:9100']
+    metric_relabel_configs:
+      # Exclude metrics related to virtual network interfaces created by Docker
+      - source_labels: [device]
+        regex: '(veth.*|br-.*|docker.*|calico.*)'
+        action: drop
+      # Exclude metrics on temporary file system mount points
+      - source_labels: [mountpoint]
+        regex: '(/var/lib/docker/.*|/proc.*|/sys.*|/dev/.*)'
+        action: drop
