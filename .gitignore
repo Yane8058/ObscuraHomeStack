@@ -8,6 +8,7 @@ Caddyfile
 
 # ======= Private Configs ======= #
 containers/alertmanager.yml
+containers/prometheus.yml
 py_scripts/*.py
 
 # ======= Nextcloud ======= #

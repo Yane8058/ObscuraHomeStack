@@ -12,8 +12,8 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 - 🐳 Containerized services via **Docker Compose**
 - 🔒 Security hardening — UFW, Fail2Ban, SSH keys, ClamAV
 - 📊 Full monitoring — Prometheus, Grafana, Alertmanager (Telegram)
-- 🌐 Remote access via **Tailscale** VPN — no port forwarding needed
-- 🧩 Modular Design — Specific stacks (Gaming, Domotics, Media) in modules/
+- 🌐 Remote access via **Tailscale** VPN — no port forwarding needed -- **Soon replaced with [NetBird](https://netbird.io/)**
+- 🧩 Modular Design — Specific stacks (Gaming, Domotics, Media, etc..) in modules/
 - 🕒 Automated backups and updates via cron jobs
 
 ---
@@ -35,6 +35,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Node Exporter** | System metrics | ✅ Active |
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
+| **NetBird** | Telegram alert notifications | 🔜 Soon |
 
 ### 🧩 Modules
 
@@ -44,7 +45,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Jellyfin** | Media server | ✅ Available |
 | **Domotic House** | HA + Mosquitto + Zigbee2mqtt | ✅ Available |
 | **Minecraft Bedrock** | Game server (Xbox compatible) | ✅ Available |
-| **ChangeDetection** | Url live scraping + mounting history on Grafana| 🔜 Soon |
+| **ChangeDetection** | URL live scraping (changedetection.io + Playwright/Sockpuppet headless browser) + Grafana history | ✅ Available |
 ---
 
 ## ⚙️ Quick Start
@@ -77,55 +78,60 @@ For detailed setup instructions, service configuration, and troubleshooting see 
 
 ```
 ObscuraHomeStack/
-├── containers/                             # Service data and config files
-│   ├── alert_rules.yml                     # Prometheus alerting rules
-│   ├── alertmanager.yml                    # Alertmanager config (not versioned)
-│   └── prometheus.yml                      # Prometheus config (not versioned)
+├── containers/                                     # Service data and config files
+│   ├── alert_rules.yml                             # Prometheus alerting rules
+│   ├── alertmanager.yml                            # Alertmanager config (not versioned)
+│   └── prometheus.yml                              # Prometheus config (not versioned)
 │
 ├── modules/
-│   ├── paperless_suite/                    # Paperless Suite module
+│   ├── paperless_suite/                            # Paperless Suite module
 │   │   ├── docker-compose-paperless.yml
-│   │   ├── paperless-setup.sh              # Module setup script
+│   │   ├── paperless-setup.sh                      # Module setup script
 │   │   └── README.md
 │   │
-│   ├── jellyfin/                           # Jellyfin module
+│   ├── jellyfin/                                   # Jellyfin module
 │   │   ├── docker-compose-jellyfin.yml
-│   │   ├── jellyfin-setup.sh               # Module setup script
+│   │   ├── jellyfin-setup.sh                       # Module setup script
 │   │   └── README.md
 │   │
-│   ├── Domotic-House/                      # Home Assistant module
+│   ├── Domotic-House/                              # Home Assistant module
 │   │   ├── docker-compose-domoHouse.yml
-│   │   ├── domoHouse-setup.sh              # Module setup script
+│   │   ├── domoHouse-setup.sh                      # Module setup script
 │   │   └── README.md
 │   │
-│   └── Gaming/                             # Gaming stack module
-│       ├── docker-compose-gaming.yml
-│       ├── gaming-setup.sh                 # Module setup script
+│   ├── Gaming/                                     # Gaming stack module
+│   │   ├── docker-compose-gaming.yml
+│   │   ├── gaming-setup.sh                         # Module setup script
+│   │   └── README.md
+|   │
+│   └── ChangeDetection/                            # ChangeDetection module
+│       ├── docker-compose-changedetection.yml
+│       ├── changedetection-setup.sh                # Module setup script
 │       └── README.md
 │
-├── logs/                                   # System and backup logs (not versioned)
+├── logs/                                           # System and backup logs (not versioned)
 │
 ├── py_scripts/
-│   ├── firewall.py                         # Firewall config (not versioned)
+│   ├── firewall.py                                 # Firewall config (not versioned)
 │   └── requirements.txt
 │
 ├── sys_scripts/
-│   ├── setup.sh                            # Initial setup script
-│   ├── update_system.sh                    # System and container update script
-│   └── network_scanner.sh                  # Network scanner script
+│   ├── setup.sh                                    # Initial setup script
+│   ├── update_system.sh                            # System and container update script
+│   └── network_scanner.sh                          # Network scanner script
 │
-├── docker-compose.yml                      # Main stack
-├── .env                                    # Local config (not versioned)
-├── .env.example                            # Config template
+├── docker-compose.yml                              # Main stack
+├── .env                                            # Local config (not versioned)
+├── .env.example                                    # Config template
 ├── .gitignore
-├── Caddyfile.example                       # Proxy template for Tailscale/Local
+├── Caddyfile.example                               # Proxy template for Tailscale/Local
 ├── cronjobs_template.txt
-├── Documentation.md                        # Full service documentation
+├── Documentation.md                                # Full service documentation
 ├── LICENSE
 └── README.md
 ```
 
-> ⚠️ Not versioned for security: `.env, Caddyfile, containers/alertmanager.yml, py_scripts/firewall.py`
+> ⚠️ Not versioned for security: `.env, Caddyfile, containers/alertmanager.yml, containers/prometheus.yml, py_scripts/firewall.py`
 
 ---
 
