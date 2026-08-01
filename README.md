@@ -35,7 +35,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Node Exporter** | System metrics | ✅ Active |
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
-| **NetBird** | Telegram alert notifications | 🔜 Soon |
+| **NetBird** | WireGuard-based mesh VPN, self-hosted replacement for Tailscale | 🔜 Soon |
 
 ### 🧩 Modules
 
