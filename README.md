@@ -12,7 +12,7 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 - 🐳 Containerized services via **Docker Compose**
 - 🔒 Security hardening — UFW, Fail2Ban, SSH keys, ClamAV
 - 📊 Full monitoring — Prometheus, Grafana, Alertmanager (Telegram)
-- 🌐 Remote access via **Tailscale** VPN — no port forwarding needed -- **Soon replaced with [NetBird](https://netbird.io/)**
+- 🌐 Remote access via **Tailscale** VPN — no port forwarding needed
 - 🧩 Modular Design — Specific stacks (Gaming, Domotics, Media, etc..) in modules/
 - 🕒 Automated backups and updates via cron jobs
 
@@ -35,7 +35,6 @@ Personal Linux HomeServer stack built on **Docker Compose** — self-hosted, mon
 | **Node Exporter** | System metrics | ✅ Active |
 | **cAdvisor** | Container metrics | ✅ Active |
 | **Alertmanager** | Telegram alert notifications | ✅ Active |
-| **NetBird** | WireGuard-based mesh VPN, self-hosted replacement for Tailscale | 🔜 Soon |
 
 ### 🧩 Modules
 
